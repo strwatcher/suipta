@@ -1,0 +1,24 @@
+# Refer for explanation to following link:
+# https://github.com/evilmartians/lefthook/blob/master/docs/configuration.md
+#
+# pre-push:
+#   commands:
+#     packages-audit:
+#       tags: frontend security
+#       run: yarn audit
+#     gems-audit:
+#       tags: backend security
+#       run: bundle audit
+#
+pre-commit:
+  parallel: true
+  commands:
+    prettier: 
+      glob: "*.{js,sjs,ts}"
+      run: pnpm prettier {staged_files}
+    eslint:
+      glob: "*.{js,ts}"
+      run: pnpm eslint {staged_files}
+    test:
+      run: pnpm test:run
+
