@@ -12,11 +12,6 @@
     "lefthook": "1.3.4",
     "commitizen": "4.3.0"
   },
-  "config": {
-    "commitizen": {
-      "path": "cz-convetional-changelog"
-    }
-  },
   "type": "module",
   "name": "suipta",
   "description": "Simple boilerplate-code cli generator for Feature-Sliced Design methodolgy",
