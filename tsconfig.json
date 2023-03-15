@@ -8,6 +8,6 @@
     "sourceMap": true,
     "esModuleInterop": true,
     "module": "CommonJS",
-    "files": ["src/**/*",  "lib/**/*"]
+    "files": ["src/**/*", "lib/**/*"]
   }
 }
