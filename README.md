@@ -6,7 +6,7 @@ Simple boilerplate-code cli generator intended to imporve your experience with F
 
 ### Requirments:
 
-- volta
+- [volta](https://volta.sh/)
 
 ### Install tooling:
 
