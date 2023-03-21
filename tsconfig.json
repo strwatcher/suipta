@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "rootDir": "./",
-    "outDir": "build",
+    "rootDir": "./src",
+    "outDir": "bin",
     "strict": true,
     "target": "ESNext",
     "moduleResolution": "node",
     "sourceMap": true,
     "esModuleInterop": true,
-    "module": "CommonJS",
-    "files": ["src/**/*", "lib/**/*"]
-  }
+    "module": "CommonJS"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "src/**/*.test.*"]
 }
