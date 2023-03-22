@@ -15,5 +15,8 @@ Plop.prepare({
     configPath: path.join(__dirname, './plopfile.js'),
     preload: argv.preload || [],
     completion: argv.completion,
-}, env => Plop.execute(env, env => run(env, argv, true)));
+}, env => Plop.execute(env, env => {
+    const options = Object.assign(Object.assign({}, env), { dest: process.cwd() });
+    return run(options, undefined, true);
+}));
 //# sourceMappingURL=index.js.map
