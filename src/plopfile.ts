@@ -1,4 +1,9 @@
+import path from 'node:path'
 import { NodePlopAPI } from 'plop'
+import { resolveConfig } from './config'
+import { __dirname } from './helpers'
+
+const config = resolveConfig('')
 
 export default function(plop: NodePlopAPI) {
   plop.setGenerator('slice', {
@@ -6,15 +11,7 @@ export default function(plop: NodePlopAPI) {
       {
         type: 'list',
         name: 'layer',
-        choices: [
-          'app',
-          'processes',
-          'pages',
-          'widgets',
-          'features',
-          'entities',
-          'shared',
-        ],
+        choices: config.layers,
         message: 'Choose the layer in which slice will be created',
       },
       {
@@ -26,9 +23,13 @@ export default function(plop: NodePlopAPI) {
     actions: [
       {
         type: 'addMany',
-        destination: '../src/{{kebabCase layer}}/{{kebabCase slice}}/',
-        base: '../templates/{{layer}}',
-        templateFiles: '../templates/{{layer}}/**/*',
+        destination: path.join(
+          __dirname,
+          config.rootDir,
+          '{{kebabCase layer}}/{{kebabCase slice}}/'
+        ),
+        base: path.join(config.templatesDir, '{{layer}}'),
+        templateFiles: path.join(config.templatesDir, '{{layer}}/**/*'),
       },
     ],
   })
