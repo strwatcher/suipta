@@ -3,7 +3,7 @@
     "rootDir": "./src",
     "outDir": "bin",
     "strict": true,
-    "target": "Es2017",
+    "target": "EsNext",
     "moduleResolution": "node",
     "sourceMap": true,
     "esModuleInterop": true,

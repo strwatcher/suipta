@@ -1,22 +1,31 @@
 #!/usr/bin/env node
-import path from 'node:path';
-import minimist from 'minimist';
-import { Plop, run } from 'plop';
-const args = process.argv.slice(2);
-const argv = minimist(args);
-import { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-const __dirname = dirname(fileURLToPath(import.meta.url));
-console.log(__dirname);
-console.log(process.argv);
-console.log(argv);
-Plop.prepare({
+
+// src/executable.ts
+import path from "node:path";
+import minimist from "minimist";
+import { Plop, run } from "plop";
+
+// src/helpers/index.ts
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+var __packageDir = dirname(fileURLToPath(import.meta.url));
+var __dirname = process.cwd();
+
+// src/executable.ts
+var args = process.argv.slice(2);
+var argv = minimist(args);
+Plop.prepare(
+  {
     cwd: argv.cwd,
-    configPath: path.join(__dirname, './plopfile.js'),
+    configPath: path.join(__packageDir, "./plopfile.js"),
     preload: argv.preload || [],
-    completion: argv.completion,
-}, env => Plop.execute(env, env => {
-    const options = Object.assign(Object.assign({}, env), { dest: process.cwd() });
-    return run(options, undefined, true);
-}));
-//# sourceMappingURL=index.js.map
+    completion: argv.completion
+  },
+  (env) => Plop.execute(env, (env2) => {
+    const options = {
+      ...env2,
+      dest: process.cwd()
+    };
+    return run(options, void 0, true);
+  })
+);

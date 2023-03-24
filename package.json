@@ -7,7 +7,9 @@
     "test:run": "vitest run",
     "format": "prettier --write .",
     "lint": "eslint .",
-    "build": "tsc"
+    "build:index": "esbuild src/executable.ts --bundle --platform=node --format=esm --outfile=bin/index.js --packages=external",
+    "build:plop": "esbuild src/plopfile.ts --bundle --platform=node --format=esm --outfile=bin/plopfile.js --packages=external",
+    "build": "concurrently pnpm:build:*"
   },
   "volta": {
     "node": "18.14.2",
@@ -34,6 +36,7 @@
     "@types/node": "^18.15.3",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "@typescript-eslint/parser": "^5.55.0",
+    "concurrently": "^7.6.0",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "^8.36.0",
     "lefthook": "^1.3.4",
@@ -42,6 +45,8 @@
     "vitest": "^0.29.2"
   },
   "dependencies": {
+    "@digitak/esrun": "^3.2.21",
+    "esbuild": "^0.17.12",
     "minimist": "^1.2.8",
     "plop": "^3.1.2"
   },
