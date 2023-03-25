@@ -17,8 +17,18 @@ var config = {
 };
 
 // src/config/resolve.ts
+import yaml from "yaml";
+import fs from "node:fs";
 var resolveConfig = (configPath) => {
-  return { ...config };
+  let userConfig;
+  if (configPath.includes("yaml")) {
+    userConfig = loadYamlConfig(configPath);
+  }
+  return { ...config, ...userConfig };
+};
+var loadYamlConfig = (configPath) => {
+  const config3 = yaml.parse(fs.readFileSync(configPath).toString());
+  return config3;
 };
 
 // src/helpers/index.ts
@@ -28,7 +38,7 @@ var __packageDir = dirname(fileURLToPath(import.meta.url));
 var __dirname = process.cwd();
 
 // src/plopfile.ts
-var config2 = resolveConfig("");
+var config2 = resolveConfig("suipta.config.yaml");
 function plopfile_default(plop) {
   plop.setGenerator("slice", {
     prompts: [

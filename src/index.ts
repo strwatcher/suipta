@@ -1,1 +1,0 @@
-export { setupConfig } from './config'

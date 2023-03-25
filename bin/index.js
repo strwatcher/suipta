@@ -14,17 +14,18 @@ var __dirname = process.cwd();
 // src/executable.ts
 var args = process.argv.slice(2);
 var argv = minimist(args);
+console.log(args);
 Plop.prepare(
   {
     cwd: argv.cwd,
     configPath: path.join(__packageDir, "./plopfile.js"),
     preload: argv.preload || [],
-    completion: argv.completion
+    completion: argv.completion ?? true
   },
   (env) => Plop.execute(env, (env2) => {
+    console.log(env2);
     const options = {
-      ...env2,
-      dest: process.cwd()
+      ...env2
     };
     return run(options, void 0, true);
   })
