@@ -12,6 +12,9 @@ export const resolveConfig = (configPath: string): SuiptaConfig => {
 }
 
 export const loadYamlConfig = (configPath: string): Partial<SuiptaConfig> => {
+  if (!fs.existsSync(configPath)) {
+    return {}
+  }
   const config = yaml.parse(fs.readFileSync(configPath).toString())
   return config as Partial<SuiptaConfig>
 }

@@ -1,27 +1,21 @@
 #!/usr/bin/env node
-
+import { fork } from 'node:child_process'
+import { command, run, string, option, optional } from 'cmd-ts'
 import path from 'node:path'
-import minimist from 'minimist'
-import { Plop, run } from 'plop'
 import { __packageDir } from './helpers'
 
-const args = process.argv.slice(2)
-const argv = minimist(args)
-console.log(args)
-
-Plop.prepare(
-  {
-    cwd: argv.cwd,
-    configPath: path.join(__packageDir, './plopfile.js'),
-    preload: argv.preload || [],
-    completion: argv.completion ?? true,
+const app = command({
+  name: 'suipta',
+  args: {
+    configPath: option({
+      type: optional(string),
+      long: 'config-path',
+      short: 'c',
+    }),
   },
-  env =>
-    Plop.execute(env, env => {
-      console.log(env)
-      const options = {
-        ...env,
-      }
-      return run(options, undefined, true)
-    })
-)
+  handler: ({ configPath }) => {
+    fork(path.join(__packageDir, 'plop.js'))
+  },
+})
+
+run(app, process.argv.slice(2))
