@@ -14,7 +14,17 @@ const app = command({
     }),
   },
   handler: ({ configPath }) => {
-    fork(path.join(__packageDir, 'plop.js'))
+    // handle arguments
+    // write them in json
+    //
+    // const plopArgs = ['slice']
+    // if (layer) {
+    //   plopArgs.push(layer)
+    // }
+    // if (sliceName) {
+    //   plopArgs.push(sliceName)
+    // }
+    fork(path.join(__packageDir, 'plop.js' /*plopArgs*/))
   },
 })
 
