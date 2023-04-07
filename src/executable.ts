@@ -7,7 +7,6 @@ import { __packageDir } from './helpers'
 
 const args = process.argv.slice(2)
 const argv = minimist(args)
-console.log(args)
 
 Plop.prepare(
   {
@@ -18,7 +17,6 @@ Plop.prepare(
   },
   env =>
     Plop.execute(env, env => {
-      console.log(env)
       const options = {
         ...env,
       }
