@@ -14,7 +14,6 @@ var __dirname = process.cwd();
 // src/executable.ts
 var args = process.argv.slice(2);
 var argv = minimist(args);
-console.log(args);
 Plop.prepare(
   {
     cwd: argv.cwd,
@@ -23,7 +22,6 @@ Plop.prepare(
     completion: argv.completion ?? true
   },
   (env) => Plop.execute(env, (env2) => {
-    console.log(env2);
     const options = {
       ...env2
     };
