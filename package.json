@@ -2,14 +2,13 @@
   "version": "0.0.4",
   "scripts": {
     "prepare": "lefthook install",
-    "start": "plop",
+    "start": "./bin/index.js",
     "test": "vitest",
     "test:run": "vitest run",
     "format": "prettier --write .",
     "lint": "eslint .",
     "build:index": "esbuild src/executable.ts --bundle --platform=node --format=esm --outfile=bin/index.js --packages=external",
     "build:plopfile": "esbuild src/plopfile.ts --bundle --platform=node --format=esm --outfile=bin/plopfile.js --packages=external",
-    "build:plop": "esbuild src/plop.ts --bundle --platform=node --format=esm --outfile=bin/plop.js --packages=external",
     "build": "concurrently pnpm:build:*"
   },
   "volta": {
@@ -47,6 +46,7 @@
   },
   "dependencies": {
     "@digitak/esrun": "^3.2.21",
+    "chalk": "^5.2.0",
     "cmd-ts": "^0.12.1",
     "esbuild": "^0.17.12",
     "minimist": "^1.2.8",
