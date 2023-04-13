@@ -1,30 +1,29 @@
 #!/usr/bin/env node
-import { fork } from 'node:child_process'
-import { command, run, string, option, optional } from 'cmd-ts'
-import path from 'node:path'
+import {
+  command,
+  run,
+  string,
+  option,
+  optional,
+  positional,
+  oneOf,
+} from 'cmd-ts'
 import { __packageDir } from './helpers'
+import { runPlop } from './plop'
+import { resolveConfig } from './config'
+import { printResult } from './plop/result'
+
+const config = resolveConfig('suipta.config.yaml')
 
 const app = command({
   name: 'suipta',
   args: {
-    configPath: option({
-      type: optional(string),
-      long: 'config-path',
-      short: 'c',
-    }),
+    layer: positional({ type: oneOf(config.layers), displayName: 'layer' }),
+    slice: positional({ type: string, displayName: 'slice' }),
   },
-  handler: ({ configPath }) => {
-    // handle arguments
-    // write them in json
-    //
-    // const plopArgs = ['slice']
-    // if (layer) {
-    //   plopArgs.push(layer)
-    // }
-    // if (sliceName) {
-    //   plopArgs.push(sliceName)
-    // }
-    fork(path.join(__packageDir, 'plop.js' /*plopArgs*/))
+  handler: async ({ layer, slice }) => {
+    const result = await runPlop({ layer, slice, generator: 'slice' })
+    printResult(result)
   },
 })
 
