@@ -1,4 +1,4 @@
-import { it, expect, describe, beforeEach } from 'vitest'
+import { it, expect, beforeEach, afterAll } from 'vitest'
 import fs from 'fs'
 import { runPlop } from '../src/plop'
 
@@ -44,4 +44,10 @@ it('if slice already exists failures array should have elements', async () => {
 
   expect(secondResult.failures.length > 0).toBe(true)
   expect(secondResult.changes.length).toBe(0)
+})
+
+afterAll(() => {
+  if (fs.existsSync('./tests/src')) {
+    fs.rmSync('./tests/src', { recursive: true, force: true })
+  }
 })
