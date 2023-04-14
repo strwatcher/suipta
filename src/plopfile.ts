@@ -1,9 +1,12 @@
 import path from 'node:path'
 import { NodePlopAPI } from 'plop'
+import { getArguments } from './arguments'
 import { resolveConfig } from './config'
 import { __dirname } from './helpers'
 
 const config = resolveConfig('suipta.config.yaml')
+const args = getArguments()
+console.log('plopfile arguments', args)
 // const args = read json
 
 export default function(plop: NodePlopAPI) {

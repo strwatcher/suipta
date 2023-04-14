@@ -2,6 +2,9 @@ import { SuiptaConfig } from './config'
 import { config } from './config.default'
 import yaml from 'yaml'
 import fs from 'node:fs'
+import { __packageDir } from '../helpers'
+import path from 'node:path'
+import { SuiptaArguments } from '../arguments/types'
 
 export const resolveConfig = (configPath: string): SuiptaConfig => {
   let userConfig
