@@ -5,7 +5,12 @@ import { resolveConfig } from './config'
 import { __dirname } from './helpers'
 
 const config = await resolveConfig('suipta.config.yaml')
-const args = getArguments()
+let args
+try {
+  args = getArguments()
+} catch (e) {
+  args = {}
+}
 console.log('plopfile arguments', args)
 // const args = read json
 

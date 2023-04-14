@@ -1,7 +1,13 @@
 #!/usr/bin/env node
-import { fork } from 'node:child_process'
-import { command, run, string, option, optional } from 'cmd-ts'
-import path from 'node:path'
+import {
+  command,
+  run,
+  string,
+  option,
+  optional,
+  positional,
+  oneOf,
+} from 'cmd-ts'
 import { __packageDir } from './helpers'
 import { runPlop } from './plop'
 import { resolveConfig } from './config'
@@ -9,7 +15,7 @@ import { printResult } from './plop/result'
 import { languages, models, uis } from './arguments/types'
 import { writeArguments } from './arguments'
 
-const config = resolveConfig('suipta.config.yaml')
+const config = await resolveConfig('suipta.config.yaml')
 
 const app = command({
   name: 'suipta',

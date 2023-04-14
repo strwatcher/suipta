@@ -86,8 +86,13 @@ var loadYamlConfig = (configPath) => {
 };
 
 // src/plopfile.ts
-var config2 = resolveConfig("suipta.config.yaml");
-var args = getArguments();
+var config2 = await resolveConfig("suipta.config.yaml");
+var args;
+try {
+  args = getArguments();
+} catch (e) {
+  args = {};
+}
 console.log("plopfile arguments", args);
 function plopfile_default(plop) {
   plop.setGenerator("slice", {
