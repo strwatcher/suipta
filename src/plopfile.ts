@@ -3,8 +3,7 @@ import { NodePlopAPI } from 'plop'
 import { resolveConfig } from './config'
 import { __dirname } from './helpers'
 
-const config = resolveConfig('suipta.config.yaml')
-// const args = read json
+const config = await resolveConfig()
 
 export default function(plop: NodePlopAPI) {
   plop.setGenerator('slice', {

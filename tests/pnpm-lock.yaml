@@ -1,7 +1,6 @@
-lockfileVersion: 5.4
-
-specifiers:
-  suipta: link:..
+lockfileVersion: '6.0'
 
 devDependencies:
-  suipta: link:..
+  suipta:
+    specifier: link:..
+    version: link:..

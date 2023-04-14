@@ -18,13 +18,43 @@ var config = {
 
 // src/config/resolve.ts
 import yaml from "yaml";
-import fs from "node:fs";
-var resolveConfig = (configPath) => {
+import fs, { promises } from "node:fs";
+
+// src/config/paths.ts
+var paths = [
+  "suipta.config.yaml",
+  "suipta.config.yml",
+  "suipta.config.json"
+];
+
+// src/config/resolve.ts
+var resolveConfig = async (configPath) => {
+  let paths2;
+  if (configPath) {
+    paths2 = [configPath, ...paths];
+  } else {
+    paths2 = [...paths];
+  }
   let userConfig;
-  if (configPath.includes("yaml")) {
-    userConfig = loadYamlConfig(configPath);
+  for (const path2 of paths2) {
+    if (fs.existsSync(path2)) {
+      if (/.*\.(yml|yaml)$/.test(path2)) {
+        userConfig = loadYamlConfig(path2);
+      } else if (/.*\.(json)$/.test(path2)) {
+        console.log(path2);
+        userConfig = await loadJsonConfig(path2);
+      }
+    }
   }
   return { ...config, ...userConfig };
+};
+var loadJsonConfig = async (configPath) => {
+  try {
+    const data = await promises.readFile(configPath, "utf-8");
+    return JSON.parse(data);
+  } catch (e) {
+    throw new Error(e);
+  }
 };
 var loadYamlConfig = (configPath) => {
   if (!fs.existsSync(configPath)) {
@@ -43,7 +73,7 @@ var plopPath = path.join(__packageDir, "plop.js");
 var plopfilePath = path.join(__packageDir, "plopfile.js");
 
 // src/plopfile.ts
-var config2 = resolveConfig("suipta.config.yaml");
+var config2 = await resolveConfig();
 function plopfile_default(plop) {
   plop.setGenerator("slice", {
     prompts: [
