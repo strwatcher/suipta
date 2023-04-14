@@ -9,7 +9,6 @@
     "lint": "eslint .",
     "build:index": "esbuild src/executable.ts --bundle --platform=node --format=esm --outfile=bin/index.js --packages=external",
     "build:plopfile": "esbuild src/plopfile.ts --bundle --platform=node --format=esm --outfile=bin/plopfile.js --packages=external",
-    "build:plop": "esbuild src/plop.ts --bundle --platform=node --format=esm --outfile=bin/plop.js --packages=external",
     "build": "concurrently pnpm:build:*"
   },
   "volta": {
