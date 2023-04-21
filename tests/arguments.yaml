@@ -1,1 +1,2 @@
-model: mobx
+model: effector
+ui: react

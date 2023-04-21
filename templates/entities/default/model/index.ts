@@ -5,4 +5,3 @@ export const {{camelCase slice}}Model = () => {
 
 export const $${{camelCase slice}} = {{camelCase slice}}Model()
 
-

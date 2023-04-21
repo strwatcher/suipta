@@ -1,5 +1,5 @@
 export type SuiptaConfig = {
   layers: Array<string>
-  templatesDir: string
+  templatesDir?: string
   rootDir: string
 }

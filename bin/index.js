@@ -42,8 +42,7 @@ var config = {
     "processes",
     "app"
   ],
-  rootDir: "src",
-  templatesDir: "../templates"
+  rootDir: "src"
 };
 
 // src/config/resolve.ts
@@ -71,7 +70,6 @@ var resolveConfig = async (configPath) => {
       if (/.*\.(yml|yaml)$/.test(path3)) {
         userConfig = loadYamlConfig(path3);
       } else if (/.*\.(json)$/.test(path3)) {
-        console.log(path3);
         userConfig = await loadJsonConfig(path3);
       }
     }
@@ -102,7 +100,7 @@ var printResult = (result) => {
 };
 
 // src/arguments/types.ts
-var models = ["effector", "mobx", "redux"];
+var models = ["effector", "redux"];
 var uis = ["react", "solid"];
 var languages = ["js", "ts"];
 

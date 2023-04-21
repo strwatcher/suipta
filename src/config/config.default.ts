@@ -11,5 +11,4 @@ export const config: SuiptaConfig = {
     'app',
   ],
   rootDir: 'src',
-  templatesDir: '../templates',
 }

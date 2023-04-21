@@ -1,4 +1,4 @@
-export const models = ['effector', 'mobx', 'redux'] as const
+export const models = ['effector', 'redux'] as const
 export const uis = ['react', 'solid'] as const
 export const languages = ['js', 'ts'] as const
 

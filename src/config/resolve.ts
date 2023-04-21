@@ -21,7 +21,6 @@ export const resolveConfig = async (
       if (/.*\.(yml|yaml)$/.test(path)) {
         userConfig = loadYamlConfig(path)
       } else if (/.*\.(json)$/.test(path)) {
-        console.log(path)
         userConfig = await loadJsonConfig(path)
       }
     }

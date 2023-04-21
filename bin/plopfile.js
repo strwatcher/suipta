@@ -36,8 +36,7 @@ var config = {
     "processes",
     "app"
   ],
-  rootDir: "src",
-  templatesDir: "../templates"
+  rootDir: "src"
 };
 
 // src/config/resolve.ts
@@ -65,7 +64,6 @@ var resolveConfig = async (configPath) => {
       if (/.*\.(yml|yaml)$/.test(path4)) {
         userConfig = loadYamlConfig(path4);
       } else if (/.*\.(json)$/.test(path4)) {
-        console.log(path4);
         userConfig = await loadJsonConfig(path4);
       }
     }
@@ -86,6 +84,7 @@ var loadYamlConfig = (configPath) => {
 };
 
 // src/plopfile.ts
+import fs3 from "node:fs";
 var config2 = await resolveConfig("suipta.config.yaml");
 var args;
 try {
@@ -93,8 +92,7 @@ try {
 } catch (e) {
   args = {};
 }
-console.log("plopfile arguments", args);
-function plopfile_default(plop) {
+async function plopfile_default(plop) {
   plop.setGenerator("slice", {
     prompts: [
       {
@@ -109,18 +107,87 @@ function plopfile_default(plop) {
         message: "Enter the name of slice"
       }
     ],
-    actions: [
-      {
-        type: "addMany",
-        destination: path3.join(
-          __dirname,
-          config2.rootDir,
-          "{{kebabCase layer}}/{{kebabCase slice}}/"
-        ),
-        base: path3.join(config2.templatesDir, "{{layer}}"),
-        templateFiles: path3.join(config2.templatesDir, "{{layer}}/**/*")
+    actions: (data) => {
+      const isAdditionalArgs = !!(args.ui || args.model || args.language);
+      const destinationBase = path3.join(
+        __dirname,
+        config2.rootDir,
+        "{{kebabCase layer}}",
+        "{{kebabCase slice}}",
+        "/"
+      );
+      const actions = [];
+      if (!isAdditionalArgs && data?.layer && config2.templatesDir && fs3.existsSync(path3.join(config2.templatesDir, data.layer))) {
+        const templateFiles = path3.join(
+          config2.templatesDir,
+          data.layer,
+          "**",
+          "*"
+        );
+        const base = path3.join(config2.templatesDir, data.layer);
+        actions.push({
+          type: "addMany",
+          destination: destinationBase,
+          base,
+          templateFiles
+        });
+      } else if (isAdditionalArgs) {
+        const templatesDir = path3.join(__packageDir, "..", "templates");
+        const base = path3.join(templatesDir, data?.layer);
+        const language = args.language ?? "ts";
+        const modelBase = path3.join(
+          base,
+          path3.join("model", args.model ?? "effector", language)
+        );
+        const uiBase = path3.join(
+          base,
+          path3.join("ui", args.ui ?? "react", language)
+        );
+        actions.push(
+          {
+            type: "addMany",
+            destination: path3.join(destinationBase, "model", "/"),
+            base: modelBase,
+            templateFiles: path3.join(modelBase, "**", "*")
+          },
+          {
+            type: "addMany",
+            destination: path3.join(destinationBase, "ui", "/"),
+            base: uiBase,
+            templateFiles: path3.join(uiBase, "**", "*")
+          },
+          {
+            type: "add",
+            path: path3.join(destinationBase, `index.${language}`),
+            templateFile: path3.join(base, `index.${language}`)
+          }
+        );
+        if (language === "ts") {
+          actions.push({
+            type: "add",
+            path: path3.join(destinationBase, `types.${language}`),
+            templateFile: path3.join(base, `types.${language}`)
+          });
+        }
+      } else {
+        const templatesDir = path3.join(__packageDir, "..", "templates");
+        const templateFiles = path3.join(
+          templatesDir,
+          data?.layer,
+          "default",
+          "**",
+          "*"
+        );
+        const base = path3.join(templatesDir, data?.layer, "default");
+        actions.push({
+          type: "addMany",
+          destination: destinationBase,
+          base,
+          templateFiles
+        });
       }
-    ]
+      return actions;
+    }
   });
 }
 export {
