@@ -19,5 +19,11 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   root: true,
 
-  ignorePatterns: ['!.*', 'node_modules', 'bin/**/*', 'templates/**/*'],
+  ignorePatterns: [
+    '!.*',
+    'node_modules',
+    'bin/**/*',
+    'templates/**/*',
+    'tests/**/*',
+  ],
 }
