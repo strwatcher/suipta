@@ -7,7 +7,7 @@
     "test:run": "vitest run",
     "format": "prettier --write .",
     "lint": "eslint .",
-    "build:index": "esbuild src/executable.ts --bundle --platform=node --format=esm --outfile=bin/index.js --packages=external",
+    "build:index": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=bin/index.js --packages=external",
     "build:plopfile": "esbuild src/plopfile.ts --bundle --platform=node --format=esm --outfile=bin/plopfile.js --packages=external",
     "build": "concurrently pnpm:build:*"
   },
@@ -20,7 +20,7 @@
   "bin": {
     "suipta": "bin/index.js"
   },
-  "main": "src/index.ts",
+  "main": "bin/export.d.ts",
   "type": "module",
   "name": "suipta",
   "description": "Simple boilerplate-code cli generator for Feature-Sliced Design methodolgy",

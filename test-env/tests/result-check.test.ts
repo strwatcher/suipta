@@ -1,11 +1,12 @@
-import { it, expect, beforeEach, afterAll, describe } from 'vitest'
+import { it, expect, describe, beforeAll } from 'vitest'
 import fs from 'fs'
-import { runPlop } from '../src/plop'
+import { runPlop } from 'suipta'
+import { generationPath } from '../src/helpers'
 
 describe('Check result of generation', () => {
-  beforeEach(() => {
-    if (fs.existsSync('./tests/src')) {
-      fs.rmSync('./tests/src', { recursive: true, force: true })
+  beforeAll(() => {
+    if (fs.existsSync(generationPath)) {
+      fs.rmdirSync(generationPath, { recursive: true })
     }
   })
 
@@ -14,7 +15,7 @@ describe('Check result of generation', () => {
       {
         generator: 'slice',
         layer: 'entities',
-        slice: 'test',
+        slice: 'first-creation',
       },
       './bin/plopfile.js'
     )
@@ -27,7 +28,7 @@ describe('Check result of generation', () => {
       {
         generator: 'slice',
         layer: 'entities',
-        slice: 'test',
+        slice: 'create-twice',
       },
       './bin/plopfile.js'
     )
@@ -38,18 +39,12 @@ describe('Check result of generation', () => {
       {
         generator: 'slice',
         layer: 'entities',
-        slice: 'test',
+        slice: 'create-twice',
       },
       './bin/plopfile.js'
     )
 
     expect(secondResult.failures.length > 0).toBe(true)
     expect(secondResult.changes.length).toBe(0)
-  })
-
-  afterAll(() => {
-    if (fs.existsSync('./tests/src')) {
-      fs.rmSync('./tests/src', { recursive: true, force: true })
-    }
   })
 })

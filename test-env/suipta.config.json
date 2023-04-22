@@ -1,0 +1,4 @@
+{
+  "layers": ["app", "entities", "features", "shared"],
+  "rootDir": "./results"
+}
