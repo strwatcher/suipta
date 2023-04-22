@@ -6,4 +6,5 @@ export type SuiptaArguments = {
   ui: (typeof uis)[number]
   model: (typeof models)[number]
   language: (typeof languages)[number]
+  configPath: string
 }

@@ -7,17 +7,15 @@ import fs from 'node:fs'
 import { __dirname, __packageDir } from './helpers'
 import { Actions } from 'node-plop'
 
-const config = await resolveConfig('suipta.config.yaml')
-let args: Partial<SuiptaArguments>
-try {
-  args = getArguments()
-} catch (e) {
-  args = {}
-}
-// const args = read json
-
 export default async function(plop: NodePlopAPI) {
-  // const templateFiles
+  let args: Partial<SuiptaArguments>
+  try {
+    args = getArguments() ?? {}
+  } catch (e) {
+    args = {}
+  }
+  const config = await resolveConfig(args.configPath)
+
   plop.setGenerator('slice', {
     prompts: [
       {
