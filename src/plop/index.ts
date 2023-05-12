@@ -1,6 +1,7 @@
 import nodePlop from 'node-plop'
 import { plopfilePath } from '../helpers'
 import { PlopArguments } from './types'
+export { Generator } from './types'
 
 export const runPlop = async (
   args: Partial<PlopArguments>,

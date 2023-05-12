@@ -12,7 +12,10 @@ export {
   runPlop,
   suiptaHandler,
   uis,
-  writeArguments
+  writeArguments,
 } from './index.js'
 
+// export { defineConfig } from '../src/config'
+
 export type { SuiptaArguments } from '../src/arguments/types'
+export type { SuiptaConfig } from '../src/config/config'

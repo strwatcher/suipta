@@ -1,3 +1,4 @@
+import Case from 'case'
 import path from 'node:path'
 import { NodePlopAPI } from 'plop'
 import { getArguments } from './arguments'
@@ -15,7 +16,84 @@ export default async function(plop: NodePlopAPI) {
     args = {}
   }
   const config = await resolveConfig(args.configPath)
+  console.log(config)
 
+  let language = 'ts'
+  if (config.lang) {
+    language = config.lang
+  }
+  if (args.language) {
+    language = args.language
+  }
+  const defaultTemplatesDir = path.join(__packageDir, '..', 'templates')
+
+  plop.setGenerator('segment', {
+    prompts: [
+      {
+        type: 'list',
+        name: 'layer',
+        choices: config.segmentLayers,
+        message: 'Choose the layer in which segment will be updated',
+      },
+      {
+        type: 'list',
+        name: 'segment',
+        choices: config.segment,
+        message: 'Choose segment in which generation result will placed',
+      },
+      {
+        type: 'input',
+        name: 'component',
+        message: 'Enter the name of new generation result',
+      },
+    ],
+    actions: data => {
+      if (!data) return []
+      const { layer, segment, component } = data
+      const layerPath = path.join(__dirname, config.rootDir, layer)
+      const segmentPath = path.join(layerPath, segment)
+
+      const actions: Actions = []
+
+      if (!fs.existsSync(layerPath)) {
+        fs.mkdirSync(layerPath)
+      }
+
+      if (!fs.existsSync(segmentPath)) {
+        fs.mkdirSync(segmentPath)
+      }
+
+      const indexPath = path.join(segmentPath, `index.${language}`)
+      if (!fs.existsSync(indexPath)) {
+        fs.writeFileSync(indexPath, '')
+      }
+
+      actions.push({
+        type: 'modify',
+        path: indexPath,
+        transform: (template: string) => {
+          template += `export * from './${Case.kebab(component)}'\n`
+          return template
+        },
+      })
+
+      const base = path.join(
+        config.templatesDir ?? defaultTemplatesDir,
+        'segments',
+        '{{kebabCase layer}}',
+        '{{kebabCase segment}}'
+      )
+
+      actions.push({
+        type: 'addMany',
+        destination: path.join(segmentPath, '{{kebabCase component}}'),
+        base,
+        templateFiles: path.join(base, '**', '*'),
+      })
+
+      return actions
+    },
+  })
   plop.setGenerator('slice', {
     prompts: [
       {
@@ -60,9 +138,8 @@ export default async function(plop: NodePlopAPI) {
           templateFiles,
         })
       } else if (isAdditionalArgs) {
-        const templatesDir = path.join(__packageDir, '..', 'templates')
+        const templatesDir = defaultTemplatesDir
         const base = path.join(templatesDir, data?.layer)
-        const language = args.language ?? 'ts'
         const modelBase = path.join(
           base,
           path.join('model', args.model ?? 'effector', language)
@@ -100,7 +177,7 @@ export default async function(plop: NodePlopAPI) {
           })
         }
       } else {
-        const templatesDir = path.join(__packageDir, '..', 'templates')
+        const templatesDir = defaultTemplatesDir
         const templateFiles = path.join(
           templatesDir,
           data?.layer,

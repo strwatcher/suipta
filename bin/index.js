@@ -1,9 +1,6 @@
-#!/usr/bin/env node
-
 // src/index.ts
 import {
   command,
-  run,
   string,
   option,
   optional,
@@ -41,15 +38,9 @@ var runPlop = async (args, customPath) => {
 
 // src/config/config.default.ts
 var config = {
-  layers: [
-    "shared",
-    "entities",
-    "features",
-    "widgets",
-    "pages",
-    "processes",
-    "app"
-  ],
+  layers: ["entities", "features", "widgets", "pages", "processes"],
+  segmentLayers: ["shared"],
+  segment: ["ui", "lib"],
   rootDir: "src"
 };
 
@@ -59,12 +50,16 @@ import fs, { promises } from "node:fs";
 
 // src/config/paths.ts
 var paths = [
+  // 'suipta.config.ts',
+  "suipta.config.js",
+  "suipta.config.cjs",
   "suipta.config.yaml",
   "suipta.config.yml",
   "suipta.config.json"
 ];
 
 // src/config/resolve.ts
+import path2 from "node:path";
 var resolveConfig = async (configPath) => {
   let paths2;
   if (configPath) {
@@ -73,12 +68,14 @@ var resolveConfig = async (configPath) => {
     paths2 = [...paths];
   }
   let userConfig;
-  for (const path2 of paths2) {
-    if (fs.existsSync(path2)) {
-      if (/.*\.(yml|yaml)$/.test(path2)) {
-        userConfig = loadYamlConfig(path2);
-      } else if (/.*\.(json)$/.test(path2)) {
-        userConfig = await loadJsonConfig(path2);
+  for (const configPath2 of paths2) {
+    if (fs.existsSync(configPath2)) {
+      if (/.*\.js$/.test(configPath2)) {
+        userConfig = (await import(path2.join(process.cwd(), configPath2))).default;
+      } else if (/.*\.(yml|yaml)$/.test(configPath2)) {
+        userConfig = loadYamlConfig(configPath2);
+      } else if (/.*\.json$/.test(configPath2)) {
+        userConfig = await loadJsonConfig(configPath2);
       }
     }
   }
@@ -96,6 +93,11 @@ var loadYamlConfig = (configPath) => {
   const config3 = yaml.parse(fs.readFileSync(configPath).toString());
   return config3;
 };
+
+// src/config/define-config.ts
+function defineConfig(options) {
+  return options;
+}
 
 // src/plop/result.ts
 import chalk from "chalk";
@@ -134,6 +136,10 @@ var config2 = await resolveConfig("suipta.config.yaml");
 var app = command({
   name: "suipta",
   args: {
+    generator: positional({
+      type: oneOf(["slice", "segment"]),
+      displayName: "generator"
+    }),
     layer: positional({
       type: optional(oneOf(config2.layers)),
       displayName: "layer"
@@ -152,20 +158,32 @@ var app = command({
       short: "c"
     })
   },
-  handler: async ({ layer, slice, model, ui, language, configPath }) => {
+  handler: async ({
+    layer,
+    slice,
+    model,
+    ui,
+    language,
+    configPath,
+    generator
+  }) => {
     writeArguments({ model, ui, language, configPath });
-    const result = await runPlop({ layer, slice, generator: "slice" });
+    const result = await runPlop({
+      layer,
+      slice,
+      generator
+    });
     printResult(result);
     return layer;
   }
 });
 var suiptaHandler = app.handler;
-run(app, process.argv.slice(2));
 export {
   __dirname,
   __packageDir,
   app,
   argumentsPath,
+  defineConfig,
   getArguments,
   languages,
   models,

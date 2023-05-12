@@ -2,7 +2,7 @@ import { it, expect, describe, beforeAll } from 'vitest'
 import fs from 'fs'
 import { suiptaHandler } from 'suipta'
 import path from 'path'
-import { generationPath } from '../src/helpers'
+import { generationPath, resultsPath } from '../src/helpers'
 
 describe('Check if generation works with args and without them', () => {
   beforeAll(() => {
@@ -13,6 +13,7 @@ describe('Check if generation works with args and without them', () => {
 
   it('without extra args', async () => {
     await suiptaHandler({
+      generator: 'slice',
       layer: 'entities',
       slice: 'without-extra',
       configPath: undefined,
@@ -31,6 +32,7 @@ describe('Check if generation works with args and without them', () => {
 
   it('with model argument = effector', async () => {
     await suiptaHandler({
+      generator: 'slice',
       layer: 'entities',
       slice: 'with-effector',
       configPath: undefined,
@@ -49,6 +51,7 @@ describe('Check if generation works with args and without them', () => {
 
   it('with ui argument = react', async () => {
     await suiptaHandler({
+      generator: 'slice',
       layer: 'entities',
       slice: 'with-react',
       configPath: undefined,
@@ -67,6 +70,7 @@ describe('Check if generation works with args and without them', () => {
 
   it('with ui argument = solid', async () => {
     await suiptaHandler({
+      generator: 'slice',
       layer: 'entities',
       slice: 'with-solid',
       configPath: undefined,
@@ -74,12 +78,22 @@ describe('Check if generation works with args and without them', () => {
       model: undefined,
       language: undefined,
     })
-    const slicePath = path.join(generationPath, '/entities/with-solid')
+
+    const slicePath = path.join(generationPath, 'entities', 'with-solid')
+    const resultPath = path.join(resultsPath, 'entities', 'with-solid')
 
     expect(fs.existsSync(slicePath)).toBeTruthy()
-    expect(fs.existsSync(path.join(slicePath, 'model'))).toBeTruthy()
-    expect(fs.existsSync(path.join(slicePath, 'ui'))).toBeTruthy()
-    expect(fs.existsSync(path.join(slicePath, 'index.ts'))).toBeTruthy()
-    expect(fs.existsSync(path.join(slicePath, 'types.ts'))).toBeTruthy()
+    const pathsToCheck = [
+      path.join('ui', 'index.tsx'),
+      path.join('ui', 's.module.scss'),
+      path.join('model', 'index.ts'),
+      'types.ts',
+      'index.ts',
+    ]
+    pathsToCheck.forEach(item => {
+      expect(fs.readFileSync(path.join(slicePath, item)).toString()).toMatch(
+        fs.readFileSync(path.join(resultPath, item)).toString()
+      )
+    })
   })
 })

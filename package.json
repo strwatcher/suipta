@@ -2,13 +2,14 @@
   "version": "0.0.4",
   "scripts": {
     "prepare": "lefthook install",
-    "start": "./bin/index.js",
+    "start": "node ./bin/run.js",
     "test": "vitest",
     "test:run": "vitest run",
     "format": "prettier --write .",
     "lint": "eslint .",
     "build:index": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=bin/index.js --packages=external",
     "build:plopfile": "esbuild src/plopfile.ts --bundle --platform=node --format=esm --outfile=bin/plopfile.js --packages=external",
+    "build:run": "esbuild src/run.ts --bundle --platform=node --format=esm --outfile=bin/run.js --packages=external",
     "build": "concurrently pnpm:build:*"
   },
   "volta": {
@@ -18,7 +19,7 @@
     "commitizen": "4.3.0"
   },
   "bin": {
-    "suipta": "bin/index.js"
+    "suipta": "./bin/run.js"
   },
   "main": "bin/export.d.ts",
   "type": "module",
@@ -46,12 +47,14 @@
   },
   "dependencies": {
     "@digitak/esrun": "^3.2.21",
+    "case": "^1.6.3",
     "chalk": "^5.2.0",
     "cmd-ts": "^0.12.1",
     "esbuild": "^0.17.12",
     "minimist": "^1.2.8",
     "node-plop": "^0.31.1",
     "plop": "^3.1.2",
+    "ts-node": "^10.9.1",
     "yaml": "^2.2.1"
   },
   "config": {

@@ -1,14 +1,8 @@
 import { SuiptaConfig } from './config'
 
 export const config: SuiptaConfig = {
-  layers: [
-    'shared',
-    'entities',
-    'features',
-    'widgets',
-    'pages',
-    'processes',
-    'app',
-  ],
+  layers: ['entities', 'features', 'widgets', 'pages', 'processes'],
+  segmentLayers: ['shared'],
+  segment: ['ui', 'lib'],
   rootDir: 'src',
 }

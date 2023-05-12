@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import {
   command,
   run,
@@ -14,11 +13,16 @@ import { printResult } from './plop/result'
 import { languages, models, uis } from './arguments/types'
 import { writeArguments } from './arguments'
 
+import { Generator } from './plop'
 const config = await resolveConfig('suipta.config.yaml')
 
 export const app = command({
   name: 'suipta',
   args: {
+    generator: positional({
+      type: oneOf(['slice', 'segment']),
+      displayName: 'generator',
+    }),
     layer: positional({
       type: optional(oneOf(config.layers)),
       displayName: 'layer',
@@ -37,9 +41,21 @@ export const app = command({
       short: 'c',
     }),
   },
-  handler: async ({ layer, slice, model, ui, language, configPath }) => {
+  handler: async ({
+    layer,
+    slice,
+    model,
+    ui,
+    language,
+    configPath,
+    generator,
+  }) => {
     writeArguments({ model, ui, language, configPath })
-    const result = await runPlop({ layer, slice, generator: 'slice' })
+    const result = await runPlop({
+      layer,
+      slice,
+      generator: generator as Generator,
+    })
     printResult(result)
     return layer
   },
@@ -50,5 +66,3 @@ export * from './config'
 export * from './arguments'
 export * from './plop'
 export * from './helpers'
-
-run(app, process.argv.slice(2))

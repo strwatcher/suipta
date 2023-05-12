@@ -1,5 +1,6 @@
+export type Generator = 'slice' | 'segment'
 export type PlopArguments = {
-  generator: 'slice' | 'segment'
+  generator: Generator
   layer: string
   slice: string
 }

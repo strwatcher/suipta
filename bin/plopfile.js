@@ -1,5 +1,6 @@
 // src/plopfile.ts
-import path2 from "node:path";
+import Case from "case";
+import path3 from "node:path";
 
 // src/arguments/index.ts
 import yaml from "yaml";
@@ -24,15 +25,9 @@ var getArguments = (filePath) => {
 
 // src/config/config.default.ts
 var config = {
-  layers: [
-    "shared",
-    "entities",
-    "features",
-    "widgets",
-    "pages",
-    "processes",
-    "app"
-  ],
+  layers: ["entities", "features", "widgets", "pages", "processes"],
+  segmentLayers: ["shared"],
+  segment: ["ui", "lib"],
   rootDir: "src"
 };
 
@@ -42,12 +37,16 @@ import fs2, { promises } from "node:fs";
 
 // src/config/paths.ts
 var paths = [
+  // 'suipta.config.ts',
+  "suipta.config.js",
+  "suipta.config.cjs",
   "suipta.config.yaml",
   "suipta.config.yml",
   "suipta.config.json"
 ];
 
 // src/config/resolve.ts
+import path2 from "node:path";
 var resolveConfig = async (configPath) => {
   let paths2;
   if (configPath) {
@@ -56,12 +55,14 @@ var resolveConfig = async (configPath) => {
     paths2 = [...paths];
   }
   let userConfig;
-  for (const path3 of paths2) {
-    if (fs2.existsSync(path3)) {
-      if (/.*\.(yml|yaml)$/.test(path3)) {
-        userConfig = loadYamlConfig(path3);
-      } else if (/.*\.(json)$/.test(path3)) {
-        userConfig = await loadJsonConfig(path3);
+  for (const configPath2 of paths2) {
+    if (fs2.existsSync(configPath2)) {
+      if (/.*\.js$/.test(configPath2)) {
+        userConfig = (await import(path2.join(process.cwd(), configPath2))).default;
+      } else if (/.*\.(yml|yaml)$/.test(configPath2)) {
+        userConfig = loadYamlConfig(configPath2);
+      } else if (/.*\.json$/.test(configPath2)) {
+        userConfig = await loadJsonConfig(configPath2);
       }
     }
   }
@@ -90,6 +91,75 @@ async function plopfile_default(plop) {
     args = {};
   }
   const config2 = await resolveConfig(args.configPath);
+  let language = "ts";
+  if (config2.lang) {
+    language = config2.lang;
+  }
+  if (args.language) {
+    language = args.language;
+  }
+  const defaultTemplatesDir = path3.join(__packageDir, "..", "templates");
+  plop.setGenerator("segment", {
+    prompts: [
+      {
+        type: "list",
+        name: "layer",
+        choices: config2.segmentLayers,
+        message: "Choose the layer in which segment will be updated"
+      },
+      {
+        type: "list",
+        name: "segment",
+        choices: config2.segment,
+        message: "Choose segment in which generation result will placed"
+      },
+      {
+        type: "input",
+        name: "component",
+        message: "Enter the name of new generation result"
+      }
+    ],
+    actions: (data) => {
+      if (!data)
+        return [];
+      const { layer, segment, component } = data;
+      const layerPath = path3.join(__dirname, config2.rootDir, layer);
+      const segmentPath = path3.join(layerPath, segment);
+      const actions = [];
+      if (!fs3.existsSync(layerPath)) {
+        fs3.mkdirSync(layerPath);
+      }
+      if (!fs3.existsSync(segmentPath)) {
+        fs3.mkdirSync(segmentPath);
+      }
+      const indexPath = path3.join(segmentPath, `index.${language}`);
+      if (!fs3.existsSync(indexPath)) {
+        fs3.writeFileSync(indexPath, "");
+      }
+      actions.push({
+        type: "modify",
+        path: indexPath,
+        transform: (template) => {
+          template += `export * from './${Case.kebab(component)}'
+`;
+          return template;
+        }
+      });
+      const base = path3.join(
+        config2.templatesDir ?? defaultTemplatesDir,
+        "segments",
+        "{{kebabCase layer}}",
+        "{{kebabCase segment}}"
+      );
+      actions.push({
+        type: "addMany",
+        destination: path3.join(segmentPath, "{{kebabCase component}}"),
+        base,
+        templateFiles: path3.join(base, "**", "*")
+      });
+      return actions;
+    }
+  });
   plop.setGenerator("slice", {
     prompts: [
       {
@@ -106,7 +176,7 @@ async function plopfile_default(plop) {
     ],
     actions: (data) => {
       const isAdditionalArgs = !!(args.ui || args.model || args.language);
-      const destinationBase = path2.join(
+      const destinationBase = path3.join(
         __dirname,
         config2.rootDir,
         "{{kebabCase layer}}",
@@ -114,14 +184,14 @@ async function plopfile_default(plop) {
         "/"
       );
       const actions = [];
-      if (!isAdditionalArgs && data?.layer && config2.templatesDir && fs3.existsSync(path2.join(config2.templatesDir, data.layer))) {
-        const templateFiles = path2.join(
+      if (!isAdditionalArgs && data?.layer && config2.templatesDir && fs3.existsSync(path3.join(config2.templatesDir, data.layer))) {
+        const templateFiles = path3.join(
           config2.templatesDir,
           data.layer,
           "**",
           "*"
         );
-        const base = path2.join(config2.templatesDir, data.layer);
+        const base = path3.join(config2.templatesDir, data.layer);
         actions.push({
           type: "addMany",
           destination: destinationBase,
@@ -129,53 +199,52 @@ async function plopfile_default(plop) {
           templateFiles
         });
       } else if (isAdditionalArgs) {
-        const templatesDir = path2.join(__packageDir, "..", "templates");
-        const base = path2.join(templatesDir, data?.layer);
-        const language = args.language ?? "ts";
-        const modelBase = path2.join(
+        const templatesDir = defaultTemplatesDir;
+        const base = path3.join(templatesDir, data?.layer);
+        const modelBase = path3.join(
           base,
-          path2.join("model", args.model ?? "effector", language)
+          path3.join("model", args.model ?? "effector", language)
         );
-        const uiBase = path2.join(
+        const uiBase = path3.join(
           base,
-          path2.join("ui", args.ui ?? "react", language)
+          path3.join("ui", args.ui ?? "react", language)
         );
         actions.push(
           {
             type: "addMany",
-            destination: path2.join(destinationBase, "model", "/"),
+            destination: path3.join(destinationBase, "model", "/"),
             base: modelBase,
-            templateFiles: path2.join(modelBase, "**", "*")
+            templateFiles: path3.join(modelBase, "**", "*")
           },
           {
             type: "addMany",
-            destination: path2.join(destinationBase, "ui", "/"),
+            destination: path3.join(destinationBase, "ui", "/"),
             base: uiBase,
-            templateFiles: path2.join(uiBase, "**", "*")
+            templateFiles: path3.join(uiBase, "**", "*")
           },
           {
             type: "add",
-            path: path2.join(destinationBase, `index.${language}`),
-            templateFile: path2.join(base, `index.${language}`)
+            path: path3.join(destinationBase, `index.${language}`),
+            templateFile: path3.join(base, `index.${language}`)
           }
         );
         if (language === "ts") {
           actions.push({
             type: "add",
-            path: path2.join(destinationBase, `types.${language}`),
-            templateFile: path2.join(base, `types.${language}`)
+            path: path3.join(destinationBase, `types.${language}`),
+            templateFile: path3.join(base, `types.${language}`)
           });
         }
       } else {
-        const templatesDir = path2.join(__packageDir, "..", "templates");
-        const templateFiles = path2.join(
+        const templatesDir = defaultTemplatesDir;
+        const templateFiles = path3.join(
           templatesDir,
           data?.layer,
           "default",
           "**",
           "*"
         );
-        const base = path2.join(templatesDir, data?.layer, "default");
+        const base = path3.join(templatesDir, data?.layer, "default");
         actions.push({
           type: "addMany",
           destination: destinationBase,

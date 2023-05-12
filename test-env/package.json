@@ -1,9 +1,10 @@
 {
+  "type": "module",
   "name": "test-env",
   "scripts": {
     "suipta": "suipta"
   },
-  "dependencies": {
+  "devDependencies": {
     "suipta": "link:.."
   }
 }

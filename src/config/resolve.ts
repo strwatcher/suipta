@@ -3,6 +3,7 @@ import { config } from './config.default'
 import yaml from 'yaml'
 import fs, { promises } from 'node:fs'
 import { paths as prebuiltPaths } from './paths'
+import path from 'node:path'
 
 export const resolveConfig = async (
   configPath?: string
@@ -16,12 +17,15 @@ export const resolveConfig = async (
 
   let userConfig
 
-  for (const path of paths) {
-    if (fs.existsSync(path)) {
-      if (/.*\.(yml|yaml)$/.test(path)) {
-        userConfig = loadYamlConfig(path)
-      } else if (/.*\.(json)$/.test(path)) {
-        userConfig = await loadJsonConfig(path)
+  for (const configPath of paths) {
+    if (fs.existsSync(configPath)) {
+      if (/.*\.js$/.test(configPath)) {
+        userConfig = (await import(path.join(process.cwd(), configPath)))
+          .default
+      } else if (/.*\.(yml|yaml)$/.test(configPath)) {
+        userConfig = loadYamlConfig(configPath)
+      } else if (/.*\.json$/.test(configPath)) {
+        userConfig = await loadJsonConfig(configPath)
       }
     }
   }

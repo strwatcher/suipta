@@ -1,6 +1,6 @@
 lockfileVersion: '6.0'
 
-dependencies:
+devDependencies:
   suipta:
     specifier: link:..
     version: link:..
