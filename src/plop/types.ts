@@ -1,9 +1,15 @@
 export type Generator = 'slice' | 'segment'
-export type PlopArguments = {
-  generator: Generator
+export type PlopSliceArguments = {
   layer: string
   slice: string
 }
+
+export type PlopSegmentArguments = {
+  layer: string
+  segment: string
+  component: string
+}
+
 export type PlopResult = {
   failures: PlopFailure[]
   changes: PlopChange[]

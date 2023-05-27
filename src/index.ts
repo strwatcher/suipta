@@ -1,28 +1,47 @@
 import {
   command,
-  run,
   string,
   option,
   optional,
   positional,
   oneOf,
+  subcommands,
 } from 'cmd-ts'
-import { runPlop } from './plop'
 import { resolveConfig } from './config'
-import { printResult } from './plop/result'
 import { languages, models, uis } from './arguments/types'
-import { writeArguments } from './arguments'
 
-import { Generator } from './plop'
+import { suiptaHandler } from './suipta-handler'
 const config = await resolveConfig('suipta.config.yaml')
 
-export const app = command({
-  name: 'suipta',
+export const segment = command({
+  name: 'segment',
   args: {
-    generator: positional({
-      type: oneOf(['slice', 'segment']),
-      displayName: 'generator',
+    layer: positional({
+      type: optional(oneOf(config.segmentLayers)),
+      displayName: 'layer',
     }),
+    segment: positional({
+      type: optional(oneOf(config.segment)),
+      displayName: 'segment',
+    }),
+    component: positional({
+      type: optional(string),
+      displayName: 'component',
+    }),
+    configPath: option({
+      type: optional(string),
+      long: 'configPath',
+      short: 'c',
+    }),
+  },
+  handler: async args => {
+    suiptaHandler({ ...args, generator: 'segment' })
+  },
+})
+
+export const slice = command({
+  name: 'slice',
+  args: {
     layer: positional({
       type: optional(oneOf(config.layers)),
       displayName: 'layer',
@@ -41,27 +60,17 @@ export const app = command({
       short: 'c',
     }),
   },
-  handler: async ({
-    layer,
-    slice,
-    model,
-    ui,
-    language,
-    configPath,
-    generator,
-  }) => {
-    writeArguments({ model, ui, language, configPath })
-    const result = await runPlop({
-      layer,
-      slice,
-      generator: generator as Generator,
-    })
-    printResult(result)
-    return layer
+  handler: async args => {
+    suiptaHandler({ ...args, generator: 'slice' })
   },
 })
 
-export const suiptaHandler = app.handler
+export const app = subcommands({
+  name: 'suipta',
+  cmds: { slice, segment },
+})
+
+export { suiptaHandler } from './suipta-handler'
 export * from './config'
 export * from './arguments'
 export * from './plop'
