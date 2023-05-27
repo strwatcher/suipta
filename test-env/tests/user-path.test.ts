@@ -2,9 +2,9 @@ import { it, expect, describe, beforeAll } from 'vitest'
 import fs from 'fs'
 import { suiptaHandler } from 'suipta'
 import path from 'path'
-import { generationPath, resultsPath } from '../src/helpers'
+import { generationPath, testEntities } from '../src/helpers'
 
-describe('Check if generation works with args and without them', () => {
+describe('Check if entities generation works with args and without them', () => {
   beforeAll(() => {
     if (fs.existsSync(generationPath)) {
       fs.rmdirSync(generationPath, { recursive: true })
@@ -12,88 +12,91 @@ describe('Check if generation works with args and without them', () => {
   })
 
   it('without extra args', async () => {
+    const slice = 'without-extra'
     await suiptaHandler({
       generator: 'slice',
       layer: 'entities',
-      slice: 'without-extra',
-      configPath: undefined,
-      ui: undefined,
-      model: undefined,
-      language: undefined,
+      slice,
     })
-    const slicePath = path.join(generationPath, '/entities/without-extra')
 
+    const slicePath = path.join(generationPath, 'entities', 'without-extra')
     expect(fs.existsSync(slicePath)).toBeTruthy()
-    expect(fs.existsSync(path.join(slicePath, 'model'))).toBeTruthy()
-    expect(fs.existsSync(path.join(slicePath, 'ui'))).toBeTruthy()
-    expect(fs.existsSync(path.join(slicePath, 'index.ts'))).toBeTruthy()
-    expect(fs.existsSync(path.join(slicePath, 'types.ts'))).toBeTruthy()
+
+    testEntities(slice)
   })
 
   it('with model argument = effector', async () => {
+    const slice = 'with-effector'
     await suiptaHandler({
       generator: 'slice',
       layer: 'entities',
-      slice: 'with-effector',
-      configPath: undefined,
-      ui: undefined,
+      slice,
       model: 'effector',
-      language: undefined,
     })
-    const slicePath = path.join(generationPath, '/entities/with-effector')
 
+    const slicePath = path.join(generationPath, 'entities', slice)
     expect(fs.existsSync(slicePath)).toBeTruthy()
-    expect(fs.existsSync(path.join(slicePath, 'model'))).toBeTruthy()
-    expect(fs.existsSync(path.join(slicePath, 'ui'))).toBeTruthy()
-    expect(fs.existsSync(path.join(slicePath, 'index.ts'))).toBeTruthy()
-    expect(fs.existsSync(path.join(slicePath, 'types.ts'))).toBeTruthy()
+    testEntities(slice)
   })
 
   it('with ui argument = react', async () => {
+    const slice = 'with-react'
     await suiptaHandler({
       generator: 'slice',
       layer: 'entities',
-      slice: 'with-react',
-      configPath: undefined,
+      slice,
       ui: 'react',
-      model: undefined,
-      language: undefined,
     })
-    const slicePath = path.join(generationPath, '/entities/with-react')
 
+    const slicePath = path.join(generationPath, 'entities', slice)
     expect(fs.existsSync(slicePath)).toBeTruthy()
-    expect(fs.existsSync(path.join(slicePath, 'model'))).toBeTruthy()
-    expect(fs.existsSync(path.join(slicePath, 'ui'))).toBeTruthy()
-    expect(fs.existsSync(path.join(slicePath, 'index.ts'))).toBeTruthy()
-    expect(fs.existsSync(path.join(slicePath, 'types.ts'))).toBeTruthy()
+    testEntities(slice)
   })
 
   it('with ui argument = solid', async () => {
+    const slice = 'with-solid'
     await suiptaHandler({
       generator: 'slice',
       layer: 'entities',
-      slice: 'with-solid',
-      configPath: undefined,
+      slice,
       ui: 'solid',
-      model: undefined,
-      language: undefined,
     })
 
-    const slicePath = path.join(generationPath, 'entities', 'with-solid')
-    const resultPath = path.join(resultsPath, 'entities', 'with-solid')
+    const slicePath = path.join(generationPath, 'entities', slice)
 
     expect(fs.existsSync(slicePath)).toBeTruthy()
-    const pathsToCheck = [
-      path.join('ui', 'index.tsx'),
-      path.join('ui', 's.module.scss'),
-      path.join('model', 'index.ts'),
-      'types.ts',
-      'index.ts',
-    ]
-    pathsToCheck.forEach(item => {
-      expect(fs.readFileSync(path.join(slicePath, item)).toString()).toMatch(
-        fs.readFileSync(path.join(resultPath, item)).toString()
-      )
+    testEntities(slice)
+  })
+
+  it('with ui argument = react and model = effector', async () => {
+    const slice = 'with-effector-react'
+    await suiptaHandler({
+      generator: 'slice',
+      layer: 'entities',
+      slice,
+      ui: 'react',
+      model: 'effector',
     })
+
+    const slicePath = path.join(generationPath, 'entities', slice)
+
+    expect(fs.existsSync(slicePath)).toBeTruthy()
+    testEntities(slice)
+  })
+
+  it('with ui argument = solid and model = effector', async () => {
+    const slice = 'with-effector-solid'
+    await suiptaHandler({
+      generator: 'slice',
+      layer: 'entities',
+      slice,
+      ui: 'solid',
+      model: 'effector',
+    })
+
+    const slicePath = path.join(generationPath, 'entities', slice)
+
+    expect(fs.existsSync(slicePath)).toBeTruthy()
+    testEntities(slice)
   })
 })
