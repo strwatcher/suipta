@@ -130,4 +130,5 @@ dist
 .pnp.*
 
 
-tests/src/**/*
+/tests/src/**/*
+/bin/arguments.yaml
