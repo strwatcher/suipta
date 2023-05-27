@@ -107,6 +107,7 @@ var getArguments = (filePath) => {
 
 // src/plop/index.ts
 import nodePlop from "node-plop";
+import ora from "ora";
 var runPlop = async (args, customPath) => {
   const plop = await nodePlop(customPath ?? plopfilePath);
   const generator = plop.getGenerator(args.generator);
@@ -128,7 +129,9 @@ var runPlop = async (args, customPath) => {
     }
   }
   const answers = await generator.runPrompts(plopArgs);
+  const spinner = ora().start("Process generation...");
   const result = await generator.runActions(answers);
+  spinner.stop();
   return result;
 };
 

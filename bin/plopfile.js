@@ -91,7 +91,6 @@ async function plopfile_default(plop) {
     args = {};
   }
   const config2 = await resolveConfig(args.configPath);
-  console.log(config2);
   let language = "ts";
   if (config2.lang) {
     language = config2.lang;
