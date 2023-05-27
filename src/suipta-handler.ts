@@ -13,8 +13,6 @@ export async function suiptaHandler(
   }
 ) {
   writeArguments(args)
-
   const result = await runPlop(args)
-
   printResult(result)
 }

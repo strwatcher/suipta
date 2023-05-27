@@ -1,5 +1,6 @@
 import nodePlop from 'node-plop'
-import { plopfilePath } from '../helpers'
+import ora from 'ora'
+import { delay, plopfilePath } from '../helpers'
 import { Generator, PlopSegmentArguments, PlopSliceArguments } from './types'
 export { Generator } from './types'
 
@@ -31,6 +32,8 @@ export const runPlop = async (
     }
   }
   const answers = await generator.runPrompts(plopArgs)
+  const spinner = ora().start('Process generation...')
   const result = await generator.runActions(answers)
+  spinner.stop()
   return result
 }

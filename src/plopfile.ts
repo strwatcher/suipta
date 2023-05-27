@@ -16,7 +16,6 @@ export default async function(plop: NodePlopAPI) {
     args = {}
   }
   const config = await resolveConfig(args.configPath)
-  console.log(config)
 
   let language = 'ts'
   if (config.lang) {
