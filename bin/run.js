@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // src/run.ts
-import { run as run2 } from "cmd-ts";
+import { run } from "cmd-ts";
 
 // src/index.ts
 import {
@@ -10,36 +10,9 @@ import {
   option,
   optional,
   positional,
-  oneOf
+  oneOf,
+  subcommands
 } from "cmd-ts";
-
-// src/plop/index.ts
-import nodePlop from "node-plop";
-
-// src/helpers/index.ts
-import path, { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-var __packageDir = dirname(fileURLToPath(import.meta.url));
-var __dirname = process.cwd();
-var plopPath = path.join(__packageDir, "plop.js");
-var plopfilePath = path.join(__packageDir, "plopfile.js");
-var argumentsPath = path.join(__packageDir, "arguments.yaml");
-
-// src/plop/index.ts
-var runPlop = async (args, customPath) => {
-  const plop = await nodePlop(customPath ?? plopfilePath);
-  const generator = plop.getGenerator(args.generator ?? "slice");
-  const plopArgs = [];
-  if (args.layer) {
-    plopArgs.push(args.layer);
-  }
-  if (args.slice) {
-    plopArgs.push(args.slice);
-  }
-  const answers = await generator.runPrompts(plopArgs);
-  const result = await generator.runActions(answers);
-  return result;
-};
 
 // src/config/config.default.ts
 var config = {
@@ -64,7 +37,7 @@ var paths = [
 ];
 
 // src/config/resolve.ts
-import path2 from "node:path";
+import path from "node:path";
 var resolveConfig = async (configPath) => {
   let paths2;
   if (configPath) {
@@ -76,7 +49,7 @@ var resolveConfig = async (configPath) => {
   for (const configPath2 of paths2) {
     if (fs.existsSync(configPath2)) {
       if (/.*\.js$/.test(configPath2)) {
-        userConfig = (await import(path2.join(process.cwd(), configPath2))).default;
+        userConfig = (await import(path.join(process.cwd(), configPath2))).default;
       } else if (/.*\.(yml|yaml)$/.test(configPath2)) {
         userConfig = loadYamlConfig(configPath2);
       } else if (/.*\.json$/.test(configPath2)) {
@@ -99,6 +72,60 @@ var loadYamlConfig = (configPath) => {
   return config3;
 };
 
+// src/arguments/types.ts
+var models = ["effector", "redux"];
+var uis = ["react", "solid"];
+var languages = ["js", "ts"];
+
+// src/arguments/index.ts
+import yaml2 from "yaml";
+
+// src/helpers/index.ts
+import path2, { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+var __packageDir = dirname(fileURLToPath(import.meta.url));
+var __dirname = process.cwd();
+var plopPath = path2.join(__packageDir, "plop.js");
+var plopfilePath = path2.join(__packageDir, "plopfile.js");
+var argumentsPath = path2.join(__packageDir, "arguments.yaml");
+
+// src/arguments/index.ts
+import fs2 from "node:fs";
+var writeArguments = (args, filePath) => {
+  const yamlString = yaml2.stringify(args);
+  if (fs2.existsSync(filePath ?? argumentsPath)) {
+    fs2.rmSync(filePath ?? argumentsPath);
+  }
+  fs2.writeFileSync(filePath ?? argumentsPath, yamlString, "utf-8");
+};
+
+// src/plop/index.ts
+import nodePlop from "node-plop";
+var runPlop = async (args, customPath) => {
+  const plop = await nodePlop(customPath ?? plopfilePath);
+  const generator = plop.getGenerator(args.generator);
+  const plopArgs = [];
+  if (args.layer) {
+    plopArgs.push(args.layer);
+  }
+  if (args.generator === "slice") {
+    if (args.slice) {
+      plopArgs.push(args.slice);
+    }
+  }
+  if (args.generator === "segment") {
+    if (args.segment) {
+      plopArgs.push(args.segment);
+    }
+    if (args.component) {
+      plopArgs.push(args.component);
+    }
+  }
+  const answers = await generator.runPrompts(plopArgs);
+  const result = await generator.runActions(answers);
+  return result;
+};
+
 // src/plop/result.ts
 import chalk from "chalk";
 var printResult = (result) => {
@@ -109,31 +136,43 @@ var printResult = (result) => {
   }
 };
 
-// src/arguments/types.ts
-var models = ["effector", "redux"];
-var uis = ["react", "solid"];
-var languages = ["js", "ts"];
-
-// src/arguments/index.ts
-import yaml2 from "yaml";
-import fs2 from "node:fs";
-var writeArguments = (args, filePath) => {
-  const yamlString = yaml2.stringify(args);
-  if (fs2.existsSync(filePath ?? argumentsPath)) {
-    fs2.rmSync(filePath ?? argumentsPath);
-  }
-  fs2.writeFileSync(filePath ?? argumentsPath, yamlString, "utf-8");
-};
+// src/suipta-handler.ts
+async function suiptaHandler(args) {
+  writeArguments(args);
+  const result = await runPlop(args);
+  printResult(result);
+}
 
 // src/index.ts
 var config2 = await resolveConfig("suipta.config.yaml");
-var app = command({
-  name: "suipta",
+var segment = command({
+  name: "segment",
   args: {
-    generator: positional({
-      type: oneOf(["slice", "segment"]),
-      displayName: "generator"
+    layer: positional({
+      type: optional(oneOf(config2.segmentLayers)),
+      displayName: "layer"
     }),
+    segment: positional({
+      type: optional(oneOf(config2.segment)),
+      displayName: "segment"
+    }),
+    component: positional({
+      type: optional(string),
+      displayName: "component"
+    }),
+    configPath: option({
+      type: optional(string),
+      long: "configPath",
+      short: "c"
+    })
+  },
+  handler: async (args) => {
+    suiptaHandler({ ...args, generator: "segment" });
+  }
+});
+var slice = command({
+  name: "slice",
+  args: {
     layer: positional({
       type: optional(oneOf(config2.layers)),
       displayName: "layer"
@@ -152,27 +191,15 @@ var app = command({
       short: "c"
     })
   },
-  handler: async ({
-    layer,
-    slice,
-    model,
-    ui,
-    language,
-    configPath,
-    generator
-  }) => {
-    writeArguments({ model, ui, language, configPath });
-    const result = await runPlop({
-      layer,
-      slice,
-      generator
-    });
-    printResult(result);
-    return layer;
+  handler: async (args) => {
+    suiptaHandler({ ...args, generator: "slice" });
   }
 });
-var suiptaHandler = app.handler;
+var app = subcommands({
+  name: "suipta",
+  cmds: { slice, segment }
+});
 
 // src/run.ts
 console.log("here");
-run2(app, process.argv.slice(2));
+run(app, process.argv.slice(2));
