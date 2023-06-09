@@ -186,12 +186,13 @@ async function plopfile_default(plop) {
       const actions = [];
       if (!isAdditionalArgs && data?.layer && config2.templatesDir && fs3.existsSync(path3.join(config2.templatesDir, data.layer))) {
         const templateFiles = path3.join(
+          __dirname,
           config2.templatesDir,
           data.layer,
           "**",
           "*"
         );
-        const base = path3.join(config2.templatesDir, data.layer);
+        const base = path3.join(__dirname, config2.templatesDir, data.layer);
         actions.push({
           type: "addMany",
           destination: destinationBase,

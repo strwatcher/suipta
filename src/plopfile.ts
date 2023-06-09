@@ -124,12 +124,13 @@ export default async function(plop: NodePlopAPI) {
         fs.existsSync(path.join(config.templatesDir, data.layer))
       ) {
         const templateFiles = path.join(
+          __dirname,
           config.templatesDir,
           data.layer,
           '**',
           '*'
         )
-        const base = path.join(config.templatesDir, data.layer)
+        const base = path.join(__dirname, config.templatesDir, data.layer)
         actions.push({
           type: 'addMany',
           destination: destinationBase,

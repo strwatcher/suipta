@@ -1,5 +1,9 @@
 {
-  "version": "0.0.4",
+  "version": "0.1.0",
+  "files": [
+    "bin",
+    "templates"
+  ],
   "scripts": {
     "prepare": "lefthook install",
     "start": "node ./bin/run.js",
