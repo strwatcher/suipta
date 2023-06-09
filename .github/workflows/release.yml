@@ -23,8 +23,7 @@ jobs:
 
       - name: Prepare .npmrc
         shell: bash
-        - run: echo "_auth = ${{ secrets.NPM_TOKEN }}" > ./.npmrc
-        - run: echo "email = ${{ secrets.NPM_EMAIL }}" > ./.npmrc
+        run: echo "_auth = ${{ secrets.NPM_TOKEN }}" > ./.npmrc && echo "email = ${{ secrets.NPM_EMAIL }}" > ./.npmrc
 
       - name: Setup node
         uses: actions/setup-node@v3
