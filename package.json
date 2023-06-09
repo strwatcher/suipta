@@ -27,7 +27,7 @@
   },
   "main": "bin/export.d.ts",
   "type": "module",
-  "name": "suipta",
+  "name": "@strwatcher/suipta",
   "description": "Simple boilerplate-code cli generator for Feature-Sliced Design methodolgy",
   "license": "ISC",
   "keywords": [
