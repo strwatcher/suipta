@@ -133,4 +133,3 @@ dist
 /tests/src/**/*
 /bin/arguments.yaml
 
-/bin/**/*
