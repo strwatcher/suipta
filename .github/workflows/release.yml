@@ -21,6 +21,11 @@ jobs:
         run: |
           pnpm build
 
+      - name: Prepare .npmrc
+        shell: bash
+        - run: echo "_auth = ${{ secrets.NPM_TOKEN }}" > ./.npmrc
+        - run: echo "email = ${{ secrets.NPM_EMAIL }}" > ./.npmrc
+
       - uses: actions/setup-node@v3
         with:
           node-version: "18"
