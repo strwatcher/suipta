@@ -127,6 +127,7 @@ You need to place them in templates dir and set its path to templatesDir option 
 
 In templates directory you need to follow next structure:
 
+```sh
 templates/
 ....entities/
 ........files which will be use in generation
@@ -137,7 +138,7 @@ templates/
 ............files which will be use in generation
 ........other layer in which segment will be generated/
 ............files which will be use in generation
-
+```
 #### Templates format
 
 Suipta use [handlebars syntax](https://handlebarsjs.com/guide/#what-is-handlebars) to process dynamic values in templates
