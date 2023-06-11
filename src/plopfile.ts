@@ -23,10 +23,10 @@ export default async function(plop: NodePlopAPI) {
   if (args.language) {
     language = args.language
   }
-  const defaultTemplatesDir = path.relative(
-    __packageDir,
-    path.posix.join(__packageDir, '..', 'templates')
-  ).split(path.sep).join(path.posix.sep)
+  const defaultTemplatesDir = path
+    .relative(__packageDir, path.posix.join(__packageDir, '..', 'templates'))
+    .split(path.sep)
+    .join(path.posix.sep)
 
   plop.setGenerator('segment', {
     prompts: [
@@ -115,15 +115,18 @@ export default async function(plop: NodePlopAPI) {
     ],
     actions: data => {
       const isAdditionalArgs = !!(args.ui || args.model || args.language)
-      const destinationBase = path.relative(
-        __packageDir,
-        path.posix.join(
-          __dirname,
-          config.rootDir,
-          '{{kebabCase layer}}',
-          '{{kebabCase slice}}'
+      const destinationBase = path
+        .relative(
+          __packageDir,
+          path.posix.join(
+            __dirname,
+            config.rootDir,
+            '{{kebabCase layer}}',
+            '{{kebabCase slice}}'
+          )
         )
-      ).split(path.sep).join(path.posix.sep)
+        .split(path.sep)
+        .join(path.posix.sep)
 
       const actions: Actions = []
       if (
@@ -132,16 +135,15 @@ export default async function(plop: NodePlopAPI) {
         config.templatesDir &&
         fs.existsSync(path.join(config.templatesDir, data.layer))
       ) {
-        const base = path.relative(
-          __packageDir,
-          path.posix.join(__dirname, config.templatesDir, data.layer)
-        ).split(path.sep).join(path.posix.sep)
+        const base = path
+          .relative(
+            __packageDir,
+            path.posix.join(__dirname, config.templatesDir, data.layer)
+          )
+          .split(path.sep)
+          .join(path.posix.sep)
 
         const templateFiles = path.posix.join(base, '**', '*')
-        
-        console.log(destinationBase)
-        console.log(base)
-        console.log(templateFiles)
 
         actions.push({
           type: 'addMany',
@@ -158,8 +160,6 @@ export default async function(plop: NodePlopAPI) {
           language
         )
         const uiBase = path.posix.join(base, 'ui', args.ui ?? 'react', language)
-
-        console.log(base, modelBase, uiBase)
 
         actions.push(
           {
@@ -189,11 +189,12 @@ export default async function(plop: NodePlopAPI) {
           })
         }
       } else {
-        const base = path.posix.join(defaultTemplatesDir, data?.layer, 'default')
+        const base = path.posix.join(
+          defaultTemplatesDir,
+          data?.layer,
+          'default'
+        )
         const templateFiles = path.posix.join(base, '**', '*')
-
-        console.log(destinationBase)
-        console.log(base)
 
         actions.push({
           type: 'addMany',
