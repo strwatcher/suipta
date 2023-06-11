@@ -23,7 +23,10 @@ export default async function(plop: NodePlopAPI) {
   if (args.language) {
     language = args.language
   }
-  const defaultTemplatesDir = path.relative(__packageDir, path.join(__packageDir, '..', 'templates'))
+  const defaultTemplatesDir = path.relative(
+    __packageDir,
+    path.posix.join(__packageDir, '..', 'templates')
+  )
 
   plop.setGenerator('segment', {
     prompts: [
@@ -48,8 +51,12 @@ export default async function(plop: NodePlopAPI) {
     actions: data => {
       if (!data) return []
       const { layer, segment, component } = data
-      const layerPath = path.normalize(path.relative(__packageDir, path.join(__dirname, config.rootDir, layer)))
-      const segmentPath = path.join(layerPath, segment)
+      const layerPath = path.relative(
+        __packageDir,
+        path.posix.join(__dirname, config.rootDir, layer)
+      )
+
+      const segmentPath = path.posix.join(layerPath, segment)
 
       const actions: Actions = []
 
@@ -61,7 +68,7 @@ export default async function(plop: NodePlopAPI) {
         fs.mkdirSync(segmentPath)
       }
 
-      const indexPath = path.join(segmentPath, `index.${language}`)
+      const indexPath = path.posix.join(segmentPath, `index.${language}`)
       if (!fs.existsSync(indexPath)) {
         fs.writeFileSync(indexPath, '')
       }
@@ -75,18 +82,18 @@ export default async function(plop: NodePlopAPI) {
         },
       })
 
-      const base = path.normalize(path.join(
+      const base = path.posix.join(
         config.templatesDir ?? defaultTemplatesDir,
         'segments',
         '{{kebabCase layer}}',
         '{{kebabCase segment}}'
-      ))
+      )
 
       actions.push({
         type: 'addMany',
-        destination: path.normalize(path.join(segmentPath, '{{kebabCase component}}')),
+        destination: path.posix.join(segmentPath, '{{kebabCase component}}'),
         base,
-        templateFiles: path.normalize(path.join(base, '**', '*')),
+        templateFiles: path.posix.join(base, '**', '*'),
       })
 
       return actions
@@ -106,14 +113,17 @@ export default async function(plop: NodePlopAPI) {
         message: 'Enter the name of slice',
       },
     ],
-    actions:  (data) => {
+    actions: data => {
       const isAdditionalArgs = !!(args.ui || args.model || args.language)
-      const destinationBase = path.relative(__packageDir, path.join(
-        __dirname,
-        config.rootDir,
-        '{{kebabCase layer}}',
-        '{{kebabCase slice}}',
-      )).split(path.sep).join(path.posix.sep)
+      const destinationBase = path.relative(
+        __packageDir,
+        path.posix.join(
+          __dirname,
+          config.rootDir,
+          '{{kebabCase layer}}',
+          '{{kebabCase slice}}'
+        )
+      )
 
       const actions: Actions = []
       if (
@@ -122,14 +132,14 @@ export default async function(plop: NodePlopAPI) {
         config.templatesDir &&
         fs.existsSync(path.join(config.templatesDir, data.layer))
       ) {
-        const base = path.relative(__packageDir, path.join(__dirname, config.templatesDir, data.layer)).split(path.sep).join(path.posix.sep)
-        const templateFiles = path.relative(__packageDir, path.join(
-          __dirname,
-          config.templatesDir,
-          data.layer,
-          '**',
-          '*'
-        )).split(path.sep).join(path.posix.sep)
+        const base = path.relative(
+          __packageDir,
+          path.posix.join(__dirname, config.templatesDir, data.layer)
+        )
+        const templateFiles = path.relative(
+          __packageDir,
+          path.posix.join(__dirname, config.templatesDir, data.layer, '**', '*')
+        )
 
         actions.push({
           type: 'addMany',
@@ -138,53 +148,56 @@ export default async function(plop: NodePlopAPI) {
           templateFiles,
         })
       } else if (isAdditionalArgs) {
-        const base = path.join(defaultTemplatesDir, data?.layer)
-        const modelBase = path.relative(__packageDir, path.join(
+        const base = path.posix.join(defaultTemplatesDir, data?.layer)
+        const modelBase = path.posix.join(
           base,
-          path.join('model', args.model ?? 'effector', language)
-        ))
-        const uiBase = path.join(
-          base,
-          path.join('ui', args.ui ?? 'react', language)
+          'model',
+          args.model ?? 'effector',
+          language
         )
+        const uiBase = path.posix.join(base, 'ui', args.ui ?? 'react', language)
+
+        console.log(base, modelBase, uiBase)
 
         actions.push(
           {
             type: 'addMany',
-            destination: path.join(destinationBase, 'model'),
-            base: modelBase.split(path.sep).join(path.posix.sep),
-            templateFiles: path.join(modelBase, '**', '*').split(path.sep).join(path.posix.sep),
+            destination: path.posix.join(destinationBase, 'model'),
+            base: modelBase,
+            templateFiles: path.posix.join(modelBase, '**', '*'),
           },
           {
             type: 'addMany',
-            destination: path.join(destinationBase, 'ui'),
+            destination: path.posix.join(destinationBase, 'ui'),
             base: uiBase,
-            templateFiles: path.normalize(path.join(uiBase, '**', '*')),
+            templateFiles: path.posix.join(uiBase, '**', '*'),
           },
           {
             type: 'add',
-            path: path.normalize(path.join(destinationBase, `index.${language}`)),
-            templateFile: path.normalize(path.join(base, `index.${language}`)),
+            path: path.posix.join(destinationBase, `index.${language}`),
+            templateFile: path.posix.join(base, `index.${language}`),
           }
         )
 
         if (language === 'ts') {
           actions.push({
             type: 'add',
-            path: path.normalize(path.join(destinationBase, `types.${language}`)),
-            templateFile: path.normalize(path.join(base, `types.${language}`)),
+            path: path.posix.join(destinationBase, `types.${language}`),
+            templateFile: path.posix.join(base, `types.${language}`),
           })
         }
       } else {
-        const globTemplates = defaultTemplatesDir.split(path.sep).join(path.posix.sep)
+        const globTemplates = defaultTemplatesDir
+          .split(path.sep)
+          .join(path.posix.sep)
         const base = path.posix.join(globTemplates, data?.layer, 'default')
-        const finalTemplates =  path.posix.join(base, '**','*')
+        const finalTemplates = path.posix.join(base, '**', '*')
 
         actions.push({
           type: 'addMany',
           destination: destinationBase,
-          base:  base,
-          templateFiles: finalTemplates
+          base: base,
+          templateFiles: finalTemplates,
         })
       }
 
