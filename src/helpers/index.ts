@@ -6,3 +6,6 @@ export const __dirname = process.cwd()
 export const plopPath = path.join(__packageDir, 'plop.js')
 export const plopfilePath = path.join(__packageDir, 'plopfile.js')
 export const argumentsPath = path.join(__packageDir, 'arguments.yaml')
+
+
+

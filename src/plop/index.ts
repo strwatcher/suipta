@@ -1,6 +1,6 @@
 import nodePlop from 'node-plop'
 import ora from 'ora'
-import { delay, plopfilePath } from '../helpers'
+import { plopfilePath } from '../helpers'
 import { Generator, PlopSegmentArguments, PlopSliceArguments } from './types'
 export { Generator } from './types'
 

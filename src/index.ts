@@ -11,7 +11,7 @@ import { resolveConfig } from './config'
 import { languages, models, uis } from './arguments/types'
 
 import { suiptaHandler } from './suipta-handler'
-const config = await resolveConfig('suipta.config.yaml')
+const config = await resolveConfig()
 
 export const segment = command({
   name: 'segment',

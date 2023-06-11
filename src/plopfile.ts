@@ -16,7 +16,6 @@ export default async function(plop: NodePlopAPI) {
     args = {}
   }
   const config = await resolveConfig(args.configPath)
-
   let language = 'ts'
   if (config.lang) {
     language = config.lang
@@ -24,7 +23,7 @@ export default async function(plop: NodePlopAPI) {
   if (args.language) {
     language = args.language
   }
-  const defaultTemplatesDir = path.join(__packageDir, '..', 'templates')
+  const defaultTemplatesDir = path.relative(__packageDir, path.join(__packageDir, '..', 'templates'))
 
   plop.setGenerator('segment', {
     prompts: [
@@ -49,7 +48,7 @@ export default async function(plop: NodePlopAPI) {
     actions: data => {
       if (!data) return []
       const { layer, segment, component } = data
-      const layerPath = path.join(__dirname, config.rootDir, layer)
+      const layerPath = path.normalize(path.relative(__packageDir, path.join(__dirname, config.rootDir, layer)))
       const segmentPath = path.join(layerPath, segment)
 
       const actions: Actions = []
@@ -76,18 +75,18 @@ export default async function(plop: NodePlopAPI) {
         },
       })
 
-      const base = path.join(
+      const base = path.normalize(path.join(
         config.templatesDir ?? defaultTemplatesDir,
         'segments',
         '{{kebabCase layer}}',
         '{{kebabCase segment}}'
-      )
+      ))
 
       actions.push({
         type: 'addMany',
-        destination: path.join(segmentPath, '{{kebabCase component}}'),
+        destination: path.normalize(path.join(segmentPath, '{{kebabCase component}}')),
         base,
-        templateFiles: path.join(base, '**', '*'),
+        templateFiles: path.normalize(path.join(base, '**', '*')),
       })
 
       return actions
@@ -107,15 +106,15 @@ export default async function(plop: NodePlopAPI) {
         message: 'Enter the name of slice',
       },
     ],
-    actions: data => {
+    actions:  (data) => {
       const isAdditionalArgs = !!(args.ui || args.model || args.language)
-      const destinationBase = path.join(
+      const destinationBase = path.relative(__packageDir, path.join(
         __dirname,
         config.rootDir,
         '{{kebabCase layer}}',
         '{{kebabCase slice}}',
-        '/'
-      )
+      )).split(path.sep).join(path.posix.sep)
+
       const actions: Actions = []
       if (
         !isAdditionalArgs &&
@@ -123,14 +122,15 @@ export default async function(plop: NodePlopAPI) {
         config.templatesDir &&
         fs.existsSync(path.join(config.templatesDir, data.layer))
       ) {
-        const templateFiles = path.join(
+        const base = path.relative(__packageDir, path.join(__dirname, config.templatesDir, data.layer)).split(path.sep).join(path.posix.sep)
+        const templateFiles = path.relative(__packageDir, path.join(
           __dirname,
           config.templatesDir,
           data.layer,
           '**',
           '*'
-        )
-        const base = path.join(__dirname, config.templatesDir, data.layer)
+        )).split(path.sep).join(path.posix.sep)
+
         actions.push({
           type: 'addMany',
           destination: destinationBase,
@@ -138,12 +138,11 @@ export default async function(plop: NodePlopAPI) {
           templateFiles,
         })
       } else if (isAdditionalArgs) {
-        const templatesDir = defaultTemplatesDir
-        const base = path.join(templatesDir, data?.layer)
-        const modelBase = path.join(
+        const base = path.join(defaultTemplatesDir, data?.layer)
+        const modelBase = path.relative(__packageDir, path.join(
           base,
           path.join('model', args.model ?? 'effector', language)
-        )
+        ))
         const uiBase = path.join(
           base,
           path.join('ui', args.ui ?? 'react', language)
@@ -152,46 +151,40 @@ export default async function(plop: NodePlopAPI) {
         actions.push(
           {
             type: 'addMany',
-            destination: path.join(destinationBase, 'model', '/'),
-            base: modelBase,
-            templateFiles: path.join(modelBase, '**', '*'),
+            destination: path.join(destinationBase, 'model'),
+            base: modelBase.split(path.sep).join(path.posix.sep),
+            templateFiles: path.join(modelBase, '**', '*').split(path.sep).join(path.posix.sep),
           },
           {
             type: 'addMany',
-            destination: path.join(destinationBase, 'ui', '/'),
+            destination: path.join(destinationBase, 'ui'),
             base: uiBase,
-            templateFiles: path.join(uiBase, '**', '*'),
+            templateFiles: path.normalize(path.join(uiBase, '**', '*')),
           },
           {
             type: 'add',
-            path: path.join(destinationBase, `index.${language}`),
-            templateFile: path.join(base, `index.${language}`),
+            path: path.normalize(path.join(destinationBase, `index.${language}`)),
+            templateFile: path.normalize(path.join(base, `index.${language}`)),
           }
         )
 
         if (language === 'ts') {
           actions.push({
             type: 'add',
-            path: path.join(destinationBase, `types.${language}`),
-            templateFile: path.join(base, `types.${language}`),
+            path: path.normalize(path.join(destinationBase, `types.${language}`)),
+            templateFile: path.normalize(path.join(base, `types.${language}`)),
           })
         }
       } else {
-        const templatesDir = defaultTemplatesDir
-        const templateFiles = path.join(
-          templatesDir,
-          data?.layer,
-          'default',
-          '**',
-          '*'
-        )
-        const base = path.join(templatesDir, data?.layer, 'default')
+        const globTemplates = defaultTemplatesDir.split(path.sep).join(path.posix.sep)
+        const base = path.posix.join(globTemplates, data?.layer, 'default')
+        const finalTemplates =  path.posix.join(base, '**','*')
 
         actions.push({
           type: 'addMany',
           destination: destinationBase,
-          base,
-          templateFiles,
+          base:  base,
+          templateFiles: finalTemplates
         })
       }
 

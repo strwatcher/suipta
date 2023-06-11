@@ -4,7 +4,8 @@ import yaml from 'yaml'
 import fs, { promises } from 'node:fs'
 import { paths as prebuiltPaths } from './paths'
 import path from 'node:path'
-
+import { __dirname } from '../helpers'
+import { pathToFileURL } from 'url'
 export const resolveConfig = async (
   configPath?: string
 ): Promise<SuiptaConfig> => {
@@ -14,14 +15,14 @@ export const resolveConfig = async (
   } else {
     paths = [...prebuiltPaths]
   }
-
   let userConfig
 
   for (const configPath of paths) {
+
     if (fs.existsSync(configPath)) {
       if (/.*\.js$/.test(configPath)) {
-        userConfig = (await import(path.join(process.cwd(), configPath)))
-          .default
+    const fullPath = pathToFileURL(path.join(__dirname, configPath)).href
+        userConfig = (await import(fullPath)).default
       } else if (/.*\.(yml|yaml)$/.test(configPath)) {
         userConfig = loadYamlConfig(configPath)
       } else if (/.*\.json$/.test(configPath)) {
