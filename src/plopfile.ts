@@ -60,27 +60,15 @@ export default async function(plop: NodePlopAPI) {
 
       const actions: Actions = []
 
-      if (!fs.existsSync(layerPath)) {
-        fs.mkdirSync(layerPath)
-      }
-
-      if (!fs.existsSync(segmentPath)) {
-        fs.mkdirSync(segmentPath)
-      }
-
       const indexPath = path.posix.join(segmentPath, `index.${language}`)
-      if (!fs.existsSync(indexPath)) {
-        fs.writeFileSync(indexPath, '')
-      }
 
-      actions.push({
-        type: 'modify',
-        path: indexPath,
-        transform: (template: string) => {
-          template += `export * from './${Case.kebab(component)}'\n`
-          return template
-        },
-      })
+      if (!fs.existsSync(indexPath)) {
+        actions.push({
+          type: 'add',
+          path: indexPath,
+          template: '',
+        })
+      }
 
       const base = path.posix.join(
         config.templatesDir ?? defaultTemplatesDir,
@@ -94,6 +82,15 @@ export default async function(plop: NodePlopAPI) {
         destination: path.posix.join(segmentPath, '{{kebabCase component}}'),
         base,
         templateFiles: path.posix.join(base, '**', '*'),
+      })
+
+      actions.push({
+        type: 'modify',
+        path: indexPath,
+        transform: (template: string) => {
+          template += `export * from './${Case.kebab(component)}'\n`
+          return template
+        },
       })
 
       return actions

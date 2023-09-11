@@ -1,0 +1,12 @@
+session_name: suipta
+windows:
+  - window_name: editor
+    shell_command_before:
+      - nvim
+  - window_name: vcs
+    shell_command_before:
+      - lazygit
+  - window_name: tests
+    shell_command_before:
+      - pnpm test
+  - window_name: idle
